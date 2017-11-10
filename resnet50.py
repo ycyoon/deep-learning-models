@@ -12,6 +12,7 @@ from __future__ import print_function
 import numpy as np
 import warnings
 
+import keras
 from keras.layers import Input
 from keras import layers
 from keras.layers import Dense
@@ -186,11 +187,19 @@ def ResNet50(include_top=True, weights='imagenet',
                          ' as true, `classes` should be 1000')
 
     # Determine proper input shape
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=224,
-                                      min_size=197,
-                                      data_format=K.image_data_format(),
-                                      require_flatten=include_top)
+    keras_version = int(keras.__version__.replace('.',''))
+    if keras_version >= 208:
+        input_shape = _obtain_input_shape(input_shape,
+                                        default_size=224,
+                                        min_size=197,
+                                        data_format=K.image_data_format(),
+                                        require_flatten=include_top)
+    else:
+        input_shape = _obtain_input_shape(input_shape,
+                                        default_size=224,
+                                        min_size=197,
+                                        data_format=K.image_data_format(),
+                                        include_top=include_top)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)

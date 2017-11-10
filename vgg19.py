@@ -8,6 +8,7 @@
 '''
 from __future__ import print_function
 
+import keras
 import numpy as np
 import warnings
 
@@ -93,11 +94,20 @@ def VGG19(include_top=True, weights='imagenet',
         raise ValueError('If using `weights` as imagenet with `include_top`'
                          ' as true, `classes` should be 1000')
     # Determine proper input shape
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=224,
-                                      min_size=48,
-                                      data_format=K.image_data_format(),
-                                      require_flatten=include_top)
+    keras_version = int(keras.__version__.replace('.',''))
+    if keras_version >= 208:
+        input_shape = _obtain_input_shape(input_shape,
+            default_size=224,
+            min_size=48,
+            data_format=K.image_data_format(),
+            require_flatten=include_top)
+
+    else:
+        input_shape = _obtain_input_shape(input_shape,
+            default_size=224,
+            min_size=48,
+            data_format=K.image_data_format(),
+            include_top=include_top)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
@@ -202,4 +212,5 @@ if __name__ == '__main__':
     print('Input image shape:', x.shape)
 
     preds = model.predict(x)
+    print(preds.shape)
     print('Predicted:', decode_predictions(preds))

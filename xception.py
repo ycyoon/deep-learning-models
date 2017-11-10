@@ -23,6 +23,7 @@ from __future__ import absolute_import
 import warnings
 import numpy as np
 
+import keras
 from keras.preprocessing import image
 
 from keras.models import Model
@@ -127,11 +128,19 @@ def Xception(include_top=True, weights='imagenet',
         old_data_format = None
 
     # Determine proper input shape
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=299,
-                                      min_size=71,
-                                      data_format=K.image_data_format(),
-                                      require_flatten=include_top)
+    keras_version = int(keras.__version__.replace('.',''))
+    if keras_version >= 208:
+        input_shape = _obtain_input_shape(input_shape,
+            default_size=299,
+            min_size=71,
+            data_format=K.image_data_format(),
+            require_flatten=include_top)
+    else:
+        input_shape = _obtain_input_shape(input_shape,
+            default_size=299,
+            min_size=71,
+            data_format=K.image_data_format(),
+            include_top=include_top)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
@@ -272,7 +281,7 @@ def preprocess_input(x):
 if __name__ == '__main__':
     model = Xception(include_top=True, weights='imagenet')
 
-    img_path = 'elephant.jpg'
+    img_path = 'cat.jpg'
     img = image.load_img(img_path, target_size=(299, 299))
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)

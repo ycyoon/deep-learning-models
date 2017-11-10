@@ -16,6 +16,7 @@ from __future__ import absolute_import
 import warnings
 import numpy as np
 
+import keras
 from keras.models import Model
 from keras import layers
 from keras.layers import Activation
@@ -149,12 +150,21 @@ def InceptionV3(include_top=True,
                          ' as true, `classes` should be 1000')
 
     # Determine proper input shape
-    input_shape = _obtain_input_shape(
-        input_shape,
-        default_size=299,
-        min_size=139,
-        data_format=K.image_data_format(),
-        require_flatten=include_top)
+    keras_version = int(keras.__version__.replace('.',''))
+    if keras_version >= 208:
+        input_shape = _obtain_input_shape(
+            input_shape,
+            default_size=299,
+            min_size=139,
+            data_format=K.image_data_format(),
+            require_flatten=include_top)
+    else:
+        input_shape = _obtain_input_shape(
+            input_shape,
+            default_size=299,
+            min_size=139,
+            data_format=K.image_data_format(),
+            include_top=include_top)
 
     if input_tensor is None:
         img_input = Input(shape=input_shape)
